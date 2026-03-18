@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yash Bajpai's Portfolio</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23030303'/%3E%3Crect x='1.5' y='1.5' width='61' height='61' rx='11' fill='none' stroke='url(%23g)' stroke-width='1.5'/%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23a855f7'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia%2C serif' font-size='22' font-weight='400' fill='url(%23g)' letter-spacing='1'%3EYB%3C/text%3E%3C/svg%3E" />
+  <!-- Google Analytics - Replace G-BJ9BVPKJKM with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BJ9BVPKJKM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-BJ9BVPKJKM", { send_page_view: true });
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+      // 1. ALL CLICKS - WhatsApp, Phone, Email, LinkedIn, Buttons, Nav
+      document.addEventListener("click", function(e) {
+        var el = e.target.closest("a, button");
+        if (!el) return;
+        var tag = el.tagName.toLowerCase();
+        var href = el.getAttribute("href") || "";
+        var text = (el.innerText || el.getAttribute("aria-label") || "").trim().slice(0, 100);
+        if (href.indexOf("wa.me") > -1) gtag("event", "whatsapp_click", { event_category: "Contact", event_label: text });
+        else if (href.indexOf("tel:") === 0) gtag("event", "phone_click", { event_category: "Contact", event_label: href });
+        else if (href.indexOf("mailto:") === 0) gtag("event", "email_click", { event_category: "Contact", event_label: href });
+        else if (href.indexOf("linkedin.com") > -1) gtag("event", "linkedin_click", { event_category: "Social", event_label: text });
+        else if (href.indexOf("http") === 0 && href.indexOf(location.hostname) === -1) gtag("event", "outbound_click", { event_category: "External", event_label: href });
+        else if (href.indexOf("#") === 0) gtag("event", "nav_click", { event_category: "Navigation", event_label: href });
+        if (tag === "button" && text) gtag("event", "button_click", { event_category: "Engagement", event_label: text });
+      });
+
+      // 2. SCROLL DEPTH 25/50/75/90/100%
+      var reached = {};
+      window.addEventListener("scroll", function() {
+        var pct = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+        [25,50,75,90,100].forEach(function(m) {
+          if (pct >= m && !reached[m]) { reached[m] = true; gtag("event", "scroll_depth", { event_category: "Scroll", event_label: m+"%", value: m }); }
+        });
+      }, { passive: true });
+
+      // 3. SECTION VIEWS
+      var seen = {};
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting && !seen[entry.target.id]) {
+            seen[entry.target.id] = true;
+            gtag("event", "section_view", { event_category: "Sections", event_label: entry.target.id });
+          }
+        });
+      }, { threshold: 0.3 });
+      document.querySelectorAll("section[id], div[id]").forEach(function(s) { if (s.id) observer.observe(s); });
+
+      // 4. TIME ON PAGE milestones
+      [30,60,120,300].forEach(function(sec) {
+        setTimeout(function() { gtag("event", "time_on_page", { event_category: "Engagement", event_label: sec+"s", value: sec }); }, sec * 1000);
+      });
+
+      // 5. PAGE EXIT with time spent
+      var t0 = Date.now();
+      window.addEventListener("beforeunload", function() {
+        gtag("event", "page_exit", { event_category: "Engagement", event_label: "seconds", value: Math.round((Date.now()-t0)/1000) });
+      });
+
+      // 6. DEVICE TYPE
+      gtag("event", "device_type", { event_category: "Tech", event_label: ("ontouchstart" in window || navigator.maxTouchPoints > 0) ? "mobile" : "desktop" });
+
+    });
+  </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
